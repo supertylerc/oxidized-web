@@ -1,0 +1,255 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+VAGRANT_API_VERSION = 2
+
+# Install prerequisites for Oxidized
+
+$OXIDIZED_INSTALL = <<EOF
+unset UCF_FORCE_CONFFOLD
+export UCF_FORCE_CONFFNEW=YES
+ucf --purge /boot/grub/menu.lst
+export DEBIAN_FRONTEND=noninteractive
+gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3
+apt-get -yqq update
+apt-get -fuyqq -o Dpkg::Options::="--force-confnew" --force-yes upgrade
+apt-get -yqq install cmake libsqlite3-dev libssl-dev pkg-config vim git python-pip
+pip install supervisor
+EOF
+
+# Oxidized base install and configuration
+
+$OXIDIZED = <<EOF
+curl -sSL https://get.rvm.io | bash -s
+source /home/vagrant/.bashrc
+source /home/vagrant/.bash_profile
+source /home/vagrant/.profile
+rvm install 2.2.4
+rvm use 2.2.4
+rvm gemset create oxidized
+rvm gemset use oxidized
+gem install --no-rdoc --no-ri oxidized oxidized-script oxidized-web
+mkdir -p /home/vagrant/.config/oxidized/
+oxidized &
+sleep 2
+pkill -9 oxidized
+cat << CONFIG > /home/vagrant/.config/oxidized/config
+---
+username: vagrant
+password: vagrant
+interval: 3600
+log: "/home/vagrant/.config/oxidized/log"
+debug: false
+threads: 30
+timeout: 20
+retries: 3
+prompt: !ruby/regexp /^([\w.@-]+[#>]\s?)$/
+rest: 0.0.0.0:8888
+vars: {}
+groups: {}
+input:
+  default: ssh
+  debug: false
+  ssh:
+    secure: false
+output:
+  default: git
+  git:
+    user: oxidized
+    email: "oxidized@tylerc.me"
+    repo: "/home/vagrant/.config/oxidized/configs.git"
+source:
+  default: csv
+  csv:
+    file: "/home/vagrant/.config/oxidized/router.db"
+    delimiter: !ruby/regexp /:/
+    map:
+      name: 0
+      model: 1
+model_map:
+  cisco: ios
+  juniper: junos
+  brocade: vyatta
+CONFIG
+echo '192.168.33.2:vyatta' >> /home/vagrant/.config/oxidized/router.db
+echo '192.168.33.3:vyatta' >> /home/vagrant/.config/oxidized/router.db
+cat << CONFIG > /home/vagrant/.config/oxidized/supervisord.conf
+[supervisord]
+logfile=/tmp/supervisord.log
+logfile_maxbytes=50MB
+logfile_backups=10
+loglevel=info
+pidfile=/tmp/supervisord.pid
+nodaemon=false
+minfds=1024
+minprocs=200
+[program:oxidized]
+command=/home/vagrant/.rvm/wrappers/ruby-2.2.4@oxidized/oxidized
+autostart=true
+autorestart=true
+user=vagrant
+environment=HOME='/home/vagrant/'
+CONFIG
+cd /home/vagrant/.config/oxidized
+supervisord
+EOF
+
+# Example oxidized script that configures OSPF
+
+$OXIDIZED_SCRIPT = <<EOF
+cat << SCRIPT > /home/vagrant/ospf.rb
+#!/usr/bin/env ruby
+
+require 'oxidized/script'
+
+def ospf_config model
+  if model.downcase == 'vyatta'
+    [
+      'configure',
+      'set protocols ospf area 0.0.0.0 network 172.16.20.0/24',
+      'set protocols ospf log-adjacency-changes',
+    ]
+  end
+end
+
+def compare model
+  if model.downcase == 'vyatta'
+    ['compare',]
+  end
+end
+
+def commit model
+  if model.downcase == 'vyatta'
+    [
+      'commit',
+      'save',
+    ]
+  end
+end
+
+def exit model
+  if model.downcase == 'vyatta'
+    ['exit',]
+  end
+end
+
+def show_ospf model
+  if model.downcase == 'vyatta'
+    'show ip ospf neighbor'
+  end
+end
+
+devices = ['192.168.33.2', '192.168.33.3']
+devices.each do |device|
+  Oxidized::Script.new host: device do |dev|
+    model = dev.model.node.serialize[:model]
+    # configure ospf
+    ospf_config(model).each {|command| dev.cmd command }
+    # show config diff
+    compare(model).each {|command| puts dev.cmd command }
+    # commit the config
+    commit(model).each {|command| dev.cmd command }
+    # exit config mode
+    exit(model).each {|command| dev.cmd command }
+    # show ospf operational state
+    puts dev.cmd show_ospf model
+  end
+end
+SCRIPT
+EOF
+
+# Modify default vyatta model to allow configuration by changing prompt
+
+$OXIDIZED_VYATTA_MODEL = <<EOF
+mkdir -p /home/vagrant/.config/oxidized/model
+cat <<'MODEL' > /home/vagrant/.config/oxidized/model/vyatta.rb
+class Vyatta < Oxidized::Model
+
+  # Brocade Vyatta / VyOS model #
+
+  prompt /\@.*?\:?~?[\$#]\s/
+
+  cmd :all do |cfg|
+    cfg = cfg.lines.to_a[1..-2].join
+  end
+
+  cmd :secret do |cfg|
+    cfg.gsub! /community (\S+) {/, 'community <hidden> {'
+    cfg
+  end
+
+  cmd 'show configuration | no-more'
+
+  cfg :telnet do
+    username  /login:\s/
+    password  /^Password:\s/
+  end
+
+  cfg :telnet, :ssh do
+    pre_logout 'exit'
+  end
+end
+MODEL
+EOF
+
+# VyOS Config Scripts
+
+$VYOS1 = <<EOF
+source /opt/vyatta/etc/functions/script-template
+set system host-name vyos-1
+set interfaces ethernet eth1 address 192.168.33.2/24
+commit
+save
+EOF
+
+$VYOS2 = <<EOF
+source /opt/vyatta/etc/functions/script-template
+set system host-name vyos-2
+set interfaces ethernet eth1 address 192.168.33.3/24
+commit
+save
+EOF
+
+# Notes:
+# ======
+# "OOB" connectivity is provided by eth1 on each VM
+# using the 192.168.33/24 network
+# Disable default ssh in order to manually assign to a known value
+# See https://github.com/mitchellh/vagrant/issues/3232
+# Disable folder syncing due to issues in Windows and with VyOS VM
+
+Vagrant.configure(VAGRANT_API_VERSION) do |config|
+  unless Vagrant.has_plugin? 'vagrant-vyos'
+    puts `vagrant plugin install vagrant-vyos`
+  end
+  config.vm.define :vyos1 do |cfg|
+    cfg.vm.box = 'higebu/vyos-1.1.6-amd64'
+    cfg.vm.network 'private_network', ip: '192.168.33.2/24', auto_config: false
+    cfg.vm.network 'private_network', ip: '172.20.0.2/24', auto_config: false
+    cfg.vm.network :forwarded_port, guest: 22, host: 2332, auto_correct: false, id: 'ssh'
+    cfg.vm.synced_folder '.', '/vagrant', disabled: true
+    cfg.vm.provision 'shell', inline: $VYOS1, privileged: false
+  end
+
+  config.vm.define :vyos2 do |cfg|
+    cfg.vm.box = 'higebu/vyos-1.1.6-amd64'
+    cfg.vm.network 'private_network', ip: '192.168.33.3/24', auto_config: false
+    cfg.vm.network 'private_network', ip: '172.20.0.3/24', auto_config: false
+    cfg.vm.network :forwarded_port, guest: 22, host: 2333, auto_correct: false, id: 'ssh'
+    cfg.vm.synced_folder '.', '/vagrant', disabled: true
+    cfg.vm.provision 'shell', inline: $VYOS2, privileged: false
+  end
+  
+  config.vm.define :oxidized do |cfg|
+    cfg.vm.box = 'debian/jessie64'
+    cfg.vm.hostname = 'oxidized'
+    cfg.vm.network 'private_network', ip: '192.168.33.1/24'
+    cfg.vm.network :forwarded_port, guest: 22, host: 2331, auto_correct: false, id: 'ssh'
+    cfg.vm.network :forwarded_port, guest: 8888, host: 8888
+    cfg.vm.synced_folder '.', '/vagrant', disabled: true
+    cfg.vm.provision 'shell', inline: $OXIDIZED_INSTALL
+    cfg.vm.provision 'shell', inline: $OXIDIZED_VYATTA_MODEL, privileged: false
+    cfg.vm.provision 'shell', inline: $OXIDIZED_SCRIPT, privileged: false
+    cfg.vm.provision 'shell', inline: $OXIDIZED, privileged: false
+  end
+end
