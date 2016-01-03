@@ -7,7 +7,7 @@ rvm:
   - 2.1.7
   - 2.3.0
 
-script: 'bundle exec rake test:spec'
+script: 'bin/ci-build.sh'
 
 notifications:
   email:
