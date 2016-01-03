@@ -1,5 +1,5 @@
 #!/bin/bash
 
 mkdir -p ~/.config/oxidized
-oxidized
+bundle exec oxidized
 bundle exec rake test:spec
