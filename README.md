@@ -1,5 +1,5 @@
 [![Build Status](https://img.shields.io/travis/supertylerc/oxidized-web/v1.0.0.svg)](https://travis-ci.org/supertylerc/oxidized-web)
-[![Code Quality][https://img.shields.io/codeclimate/github/supertylerc/oxidized-web.svg](https://codeclimate.com/github/supertylerc/oxidized-web)
+[![Code Quality](https://img.shields.io/codeclimate/github/supertylerc/oxidized-web.svg)](https://codeclimate.com/github/supertylerc/oxidized-web)
 [![Coverage Status](https://img.shields.io/coveralls/supertylerc/oxidized-web/v1.0.0.svg)](https://coveralls.io/r/Integralist/Sinderella)
 
 # v1.0.0
