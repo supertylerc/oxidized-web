@@ -27,16 +27,17 @@ resourceTypes:
               type: <<item>>
 
 /versions:
-  /{hostname}:
-    type:
-      Collection:
-        item: Version
-    get:
-      queryParameters:
-        format:
-          displayName: format
-          type: string
-          description: The format of the data for the API to return
-          example: json
-          required: false
-          enum: ['json']
+  /{group}:
+    /{hostname}:
+      type:
+        Collection:
+          item: Version
+      get:
+        queryParameters:
+          format:
+            displayName: format
+            type: string
+            description: The format of the data for the API to return
+            example: json
+            required: false
+            enum: ['json']
