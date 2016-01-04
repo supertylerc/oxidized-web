@@ -18,6 +18,13 @@ resourceTypes:
           body:
             application/json:
               type: <<item>>[]
+  Member:
+    get:
+      responses:
+        200:
+          body:
+            application/json:
+              type: <<item>>
 
 /nodes:
   type:
@@ -32,3 +39,17 @@ resourceTypes:
         example: json
         required: false
         enum: ['json']
+
+  /{hostname}:
+    type:
+      Member:
+        item: Node
+    get:
+      queryParameters:
+        format:
+          displayName: format
+          type: string
+          description: The format of the data for the API to return
+          example: json
+          required: false
+          enum: ['json']

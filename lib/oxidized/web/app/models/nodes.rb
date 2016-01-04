@@ -10,7 +10,12 @@ module Oxidized
           normalize!
         end
 
+        def find(name)
+          @nodes.find { |x| x[:name] == name }
+        end
+
         private
+
         def normalize!
           @nodes.map! do |node|
             node[:last] = iso8601 node[:last]
