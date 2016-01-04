@@ -1,0 +1,35 @@
+#%RAML 1.0
+---
+
+title: oxidized-web API
+baseUri: http://oxidized.example.com
+version: v1
+
+types:
+  Version:
+    schema: !include schemas/version.json
+    example: !include samples/version.json
+
+resourceTypes:
+  Member:
+    get:
+      responses:
+        200:
+          body:
+            application/json:
+              type: <<item>>
+
+/versions:
+  /{hostname}:
+    type:
+      Member:
+        item: Version
+    get:
+      queryParameters:
+        format:
+          displayName: format
+          type: string
+          description: The format of the data for the API to return
+          example: json
+          required: false
+          enum: ['json']

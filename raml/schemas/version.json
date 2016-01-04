@@ -1,0 +1,44 @@
+{
+  "type": "object",
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://oxidized.example.com/schemas/version.json",
+  "properties": {
+    "commit": {
+      "type": "object",
+      "properties": {
+        "hash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$",
+          "minLength": 40,
+          "maxLength": 40
+        },
+        "date": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "author": {
+          "type": "object",
+          "properties": {
+            "email": {
+              "type": "string",
+              "format": "email"
+            },
+            "name": {
+              "type": "string"
+            },
+            "date": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          "required": ["name", "date"]
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "required": ["author", "message", "hash", "date"]
+    }
+  },
+  "required": ["commit"]
+}
