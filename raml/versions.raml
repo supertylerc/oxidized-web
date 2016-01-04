@@ -11,6 +11,13 @@ types:
     example: !include samples/version.json
 
 resourceTypes:
+  Collection:
+    get:
+      responses:
+        200:
+          body:
+            application/json:
+              type: <<item>>[]
   Member:
     get:
       responses:
@@ -22,7 +29,7 @@ resourceTypes:
 /versions:
   /{hostname}:
     type:
-      Member:
+      Collection:
         item: Version
     get:
       queryParameters:
