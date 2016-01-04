@@ -8,6 +8,7 @@ module Oxidized
   module Web
     class App < Sinatra::Base
       use Routes::Nodes
+      use Routes::Versions
     end
 
     class WebApp
@@ -37,4 +38,3 @@ module Oxidized
     end
   end
 end
-
