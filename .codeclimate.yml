@@ -16,6 +16,8 @@ engines:
     checks:
       Rubocop/Style/TrailingBlankLines:
         enabled: false
+    exclude_fingerprints:
+      - cbee5412ef89b2509bfc04c790d1f50f
   scss-lint:
     enabled: true
 
