@@ -1,8 +1,8 @@
 require 'sinatra/base'
 
-Dir[File.dirname(__FILE__) + '/web/app/routes/*.rb'].each {|file| require file }
-Dir[File.dirname(__FILE__) + '/web/app/models/*.rb'].each {|file| require file }
-$: << File.expand_path('../', __FILE__)
+Dir["#{File.dirname(__FILE__)}/web/app/routes/*.rb"].each { |file| require file }
+Dir["#{File.dirname(__FILE__)}/web/app/models/*.rb"].each { |file| require file }
+$LOAD_PATH << File.expand_path('../', __FILE__)
 
 module Oxidized
   module Web
@@ -23,7 +23,7 @@ module Oxidized
         uri = '/' + uri.to_s
         @opts = {
           Host: addr,
-          Port: port,
+          Port: port
         }
         @app = Rack::Builder.new do
           map uri do

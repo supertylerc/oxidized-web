@@ -10,7 +10,10 @@ require File.expand_path '../../lib/oxidized/web.rb', __FILE__
 
 module RSpecMixin
   include Rack::Test::Methods
-  def app() Oxidized::Web::App end
+  def app
+    Oxidized::Web::App
+  end
+
   class TestNodes
     def self.list
       [{
@@ -29,14 +32,14 @@ module RSpecMixin
 
     def self.version(hostname, group)
       [{
-        oid: "9e890265f00a7369e25e7ef2de92e5f94a65a0ab",
+        oid: '9e890265f00a7369e25e7ef2de92e5f94a65a0ab',
         message: "update #{hostname}",
         author: {
-           name: "oxidized",
-           time: "2016-01-02 20:06:13 UTC",
-           email: "oxidized@tylerc.me"
+           name: 'oxidized',
+           time: '2016-01-02 20:06:13 UTC',
+           email: 'oxidized@tylerc.me'
         },
-        date: "2016-01-02 20:06:13 UTC"
+        date: '2016-01-02 20:06:13 UTC'
       }]
     end
   end
