@@ -17,14 +17,7 @@ module Oxidized
       Rack::Handler::WEBrick = Rack::Handler.get(:puma)
       def initialize(nodes, listen)
         Sinatra::Base.set :nodes, nodes
-        listen, uri = listen.split '/'
-        addr, port = listen.split ':'
-        port, addr = addr, nil if not port
-        uri = '/' + uri.to_s
-        @opts = {
-          Host: addr,
-          Port: port
-        }
+        uri = parse_listen_uri listen
         @app = Rack::Builder.new do
           map uri do
             run App
@@ -34,6 +27,19 @@ module Oxidized
 
       def run
         @thread = Thread.new { Rack::Handler::Puma.run @app, @opts }
+      end
+
+      private
+
+      def parse_listen_uri(listen)
+        listen, uri = listen.split '/'
+        addr, port = listen.split ':'
+        port, addr = addr, nil if not port
+        @opts = {
+          Host: addr,
+          Port: port
+        }
+        "/#{uri}"
       end
     end
   end
