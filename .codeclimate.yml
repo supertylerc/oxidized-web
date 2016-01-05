@@ -13,6 +13,9 @@ engines:
     enabled: true
   rubocop:
     enabled: true
+    checks:
+      Rubocop/Style/TrailingBlankLines:
+        enabled: false
   scss-lint:
     enabled: true
 
