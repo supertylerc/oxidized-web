@@ -18,7 +18,12 @@ describe 'Getting an invalid URI' do
   it 'should return a custom 404 error' do
     expect(response).to eq(expected)
   end
+
   it 'should fail' do
     expect(last_response).to_not be_ok
+  end
+
+  it 'should return an HTTP 404 code' do
+    expect(last_response.status).to eq(404)
   end
 end
