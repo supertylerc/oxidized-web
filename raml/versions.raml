@@ -9,6 +9,9 @@ types:
   Version:
     schema: !include schemas/version.json
     example: !include samples/version.json
+  Versions:
+    schema: !include schemas/versions.json
+    example: !include samples/versions.json
 
 resourceTypes:
   Collection:
@@ -27,6 +30,13 @@ resourceTypes:
               type: <<item>>
 
 /versions:
+  get:
+    responses:
+      200:
+        body:
+          application/json:
+            type: Versions
+
   /{group}:
     /{hostname}:
       type:
