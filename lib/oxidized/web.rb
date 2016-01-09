@@ -7,6 +7,17 @@ $LOAD_PATH << File.expand_path('../', __FILE__)
 module Oxidized
   module Web
     class App < Sinatra::Base
+      not_found do
+        {
+          error: 'Not Found Exception',
+          message: 'The requested resource was not found',
+          code: {
+            code: 404,
+            subcode: 1
+          }
+        }.to_json
+      end
+
       use Routes::Nodes
       use Routes::Versions
     end
