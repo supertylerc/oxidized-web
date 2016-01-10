@@ -5,18 +5,27 @@ module Oxidized
       class Versions < Sinatra::Base
         require 'time'
         attr_accessor :versions
-        def initialize(node, group)
-          # This will probably change in the future.
-          # See supertylerc/oxidized-web#16.
-          group = nil if group == 'default'
-          @versions = settings.nodes.version node, group
-          normalize!
+        def initialize
+          nodes = Nodes.new!.nodes
+          # The following creates a multidimensional array allows a Hash to be created later
+          @versions = nodes.map do |n|
+            versions = normalize(settings.nodes.version(n[:name], n[:group]))
+            [
+              n[:group].to_sym,
+              { :"#{n[:name].to_sym}" => versions }
+            ]
+          end
+          @versions = Hash[@versions]
+        end
+
+        def find(group, hostname)
+          @versions[group.to_sym][hostname.to_sym]
         end
 
         private
 
-        def normalize!
-          @versions.map! do |v|
+        def normalize(versions)
+          versions.map! do |v|
             v[:commit] = {
               hash: v[:oid],
               date: iso8601(v[:date]),
