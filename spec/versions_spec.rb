@@ -60,18 +60,20 @@ end
 describe 'Getting a list of versions for all nodes' do
   let(:expected) do
     {
-      :'rtr1.example.com' => [{
-        commit: {
-          hash: '9e890265f00a7369e25e7ef2de92e5f94a65a0ab',
-          date: '2016-01-02T20:06:13Z',
-          author: {
-            email: 'oxidized@tylerc.me',
-            name: 'oxidized',
-            date: '2016-01-02T20:06:13Z'
-          },
-          message: 'update rtr1.example.com'
-        }
-      }]
+      default: {
+        :'rtr1.example.com' => [{
+          commit: {
+            hash: '9e890265f00a7369e25e7ef2de92e5f94a65a0ab',
+            date: '2016-01-02T20:06:13Z',
+            author: {
+              email: 'oxidized@tylerc.me',
+              name: 'oxidized',
+              date: '2016-01-02T20:06:13Z'
+            },
+            message: 'update rtr1.example.com'
+          }
+        }]
+      }
     }
   end
 
