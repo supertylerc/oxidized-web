@@ -33,10 +33,10 @@ module Oxidized
               author: {
                 name: v[:author][:name],
                 email: v[:author][:email],
-                date: iso8601(v[:author][:time]),
+                date: iso8601(v[:author][:time])
               }
             }
-            v.select { |k, v| k == :commit }
+            v.select { |k, _| k == :commit }
           end
         end
 
