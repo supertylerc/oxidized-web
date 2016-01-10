@@ -3,8 +3,8 @@ require File.expand_path '../spec_helper.rb', __FILE__
 describe 'Getting an invalid URI' do
   let(:expected) do
     {
-      error: "Not Found Exception",
-      message: "The requested resource was not found",
+      error: 'Not Found Exception',
+      message: 'The requested resource was not found',
       code: {
         subcode: 1,
         code: 404

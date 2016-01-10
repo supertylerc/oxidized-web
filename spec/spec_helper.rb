@@ -30,14 +30,14 @@ module RSpecMixin
       }]
     end
 
-    def self.version(hostname, group)
+    def self.version(hostname, _)
       [{
         oid: '9e890265f00a7369e25e7ef2de92e5f94a65a0ab',
         message: "update #{hostname}",
         author: {
-           name: 'oxidized',
-           time: '2016-01-02 20:06:13 UTC',
-           email: 'oxidized@tylerc.me'
+          name: 'oxidized',
+          time: '2016-01-02 20:06:13 UTC',
+          email: 'oxidized@tylerc.me'
         },
         date: '2016-01-02 20:06:13 UTC'
       }]
