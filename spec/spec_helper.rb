@@ -19,6 +19,18 @@ module RSpecMixin
     Oxidized::Web::App
   end
 
+  def create_user(id, secret)
+    Oxidized::Web::Models::Users.new do |u|
+      u.first_name = 'Oxidized'
+      u.last_name = 'Web'
+      u.client_id = id
+      u.client_secret = secret
+      u.privilege_level = 15
+      u.created_at = current_time
+      u.save
+    end
+  end
+
   class TestNodes
     def self.list
       [{
