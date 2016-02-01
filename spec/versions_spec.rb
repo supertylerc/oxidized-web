@@ -16,7 +16,9 @@ describe 'Getting a version for a single node' do
     }]
   end
   before do
-    get '/versions/default/rtr1.example.com'
+    route = '/versions/default/rtr1.example.com'
+    header 'AUTHORIZATION', "#{$CLIENT_ID}:#{sign($CLIENT_SECRET, route)}"
+    get route
   end
   let(:response) { JSON.parse(last_response.body, symbolize_names: true) }
   it 'should return a version for a node' do
@@ -44,7 +46,9 @@ describe 'Getting the latest version for a node' do
   end
 
   before do
-    get '/versions/default/rtr1.example.com/latest'
+    route = '/versions/default/rtr1.example.com/latest'
+    header 'AUTHORIZATION', "#{$CLIENT_ID}:#{sign($CLIENT_SECRET, route)}"
+    get route
   end
 
   let(:response) { JSON.parse(last_response.body, symbolize_names: true) }
@@ -78,7 +82,9 @@ describe 'Getting a list of versions for all nodes' do
   end
 
   before do
-    get '/versions'
+    route = '/versions'
+    header 'AUTHORIZATION', "#{$CLIENT_ID}:#{sign($CLIENT_SECRET, route)}"
+    get route
   end
 
   let(:response) { JSON.parse(last_response.body, symbolize_names: true) }
