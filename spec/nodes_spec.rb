@@ -16,7 +16,9 @@ describe 'Getting a list of nodes' do
     }]
   end
   before do
-    get '/nodes'
+    route = '/nodes'
+    header 'AUTHORIZATION', "#{$CLIENT_ID}:#{sign($CLIENT_SECRET, route)}"
+    get route
   end
   let(:response) { JSON.parse(last_response.body, symbolize_names: true) }
   it 'should return a list of nodes' do
@@ -43,7 +45,9 @@ describe 'Getting a single node' do
     }
   end
   before do
-    get '/nodes/rtr1.example.com'
+    route = '/nodes/rtr1.example.com'
+    header 'AUTHORIZATION', "#{$CLIENT_ID}:#{sign($CLIENT_SECRET, route)}"
+    get route
   end
   let(:response) { JSON.parse(last_response.body, symbolize_names: true) }
   it 'should return a list of nodes' do

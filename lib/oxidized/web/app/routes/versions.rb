@@ -4,6 +4,11 @@ module Oxidized
   module Web
     module Routes
       class Versions < Sinatra::Base
+        helpers Helpers
+        before do
+          valid_key?
+        end
+
         get '/versions/:group/:hostname' do
           Models::Versions.new!.find(params[:group], params[:hostname]).to_json
         end

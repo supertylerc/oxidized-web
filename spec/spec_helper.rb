@@ -3,15 +3,32 @@ Coveralls.wear!
 
 require 'rack/test'
 require 'rspec'
+require 'securerandom'
 
 ENV['RACK_ENV'] = 'test'
 
 require File.expand_path '../../lib/oxidized/web.rb', __FILE__
+include Oxidized::Web::Helpers
+
+$CLIENT_ID = SecureRandom.random_number(36**36).to_s(36)
+$CLIENT_SECRET = SecureRandom.random_number(36**36).to_s(36)
 
 module RSpecMixin
   include Rack::Test::Methods
   def app
     Oxidized::Web::App
+  end
+
+  def create_user(id, secret)
+    Oxidized::Web::Models::Users.new do |u|
+      u.first_name = 'Oxidized'
+      u.last_name = 'Web'
+      u.client_id = id
+      u.client_secret = secret
+      u.privilege_level = 15
+      u.created_at = current_time
+      u.save
+    end
   end
 
   class TestNodes
@@ -46,4 +63,21 @@ module RSpecMixin
   Sinatra::Base.set :nodes, TestNodes
 end
 
-RSpec.configure { |c| c.include RSpecMixin }
+RSpec.configure do |c|
+  c.include RSpecMixin
+  c.before :suite do
+    Oxidized::Web::Models::Users.new do |u|
+      u.first_name = 'Tyler'
+      u.last_name = 'Christiansen'
+      u.client_id = $CLIENT_ID
+      u.client_secret = $CLIENT_SECRET
+      u.privilege_level = 15
+      u.created_at = Time.now.to_s
+      u.save
+    end
+  end
+
+  c.after :suite do
+    Oxidized::Web::Models::Users.filter(client_id: $CLIENT_ID).delete
+  end
+end

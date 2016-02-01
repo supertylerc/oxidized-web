@@ -1,5 +1,7 @@
 require 'sinatra/base'
-
+require 'sinatra/sequel'
+Dir["#{File.dirname(__FILE__)}/web/app/migrations/*.rb"].each { |file| require file }
+Dir["#{File.dirname(__FILE__)}/web/app/helpers/*.rb"].each { |file| require file }
 Dir["#{File.dirname(__FILE__)}/web/app/routes/*.rb"].each { |file| require file }
 Dir["#{File.dirname(__FILE__)}/web/app/models/*.rb"].each { |file| require file }
 $LOAD_PATH << File.expand_path('../', __FILE__)
@@ -7,6 +9,12 @@ $LOAD_PATH << File.expand_path('../', __FILE__)
 module Oxidized
   module Web
     class App < Sinatra::Base
+      helpers Helpers
+
+      before do
+        valid_key?
+      end
+
       not_found do
         {
           error: 'Not Found Exception',

@@ -21,4 +21,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'haml',                '~> 4.0'
   s.add_runtime_dependency 'sass',                '~> 3.4'
   s.add_runtime_dependency 'emk-sinatra-url-for', '~> 0.2'
+  s.add_runtime_dependency 'sequel',              '~> 4.30'
+  s.add_runtime_dependency 'sinatra-sequel',      '~> 0.9'
+  s.add_runtime_dependency 'sqlite3',             '~> 1.3'
 end
