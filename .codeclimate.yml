@@ -28,6 +28,10 @@ engines:
       - abbb6927aa366917180792edd397d0a5
       - dfd42f4ec9538db9b23a1c559f9b2460
       - 7c95a732db38d968252218dc25196c81
+      - 3cfbf36e361979a17b130e445f86a81a
+      - e957c77eace17b2a7b5b5cd680cc268e
+      - e034839a5df93ca344a72ac8ac83b0d9
+      - c866fedf1f24f51db531d05f1daa6244
   scss-lint:
     enabled: true
 
