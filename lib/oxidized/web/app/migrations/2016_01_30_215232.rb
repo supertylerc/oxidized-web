@@ -1,5 +1,5 @@
 require 'sinatra'
-migration "Create Users Database" do
+migration 'Create Users Database' do
   database.create_table :users do
     primary_key :id
     text :first_name
