@@ -26,6 +26,8 @@ engines:
       - cbee5412ef89b2509bfc04c790d1f50f
       - 1e76411a6b5ac5f855d9d7aa437d82ad
       - abbb6927aa366917180792edd397d0a5
+      - dfd42f4ec9538db9b23a1c559f9b2460
+      - 7c95a732db38d968252218dc25196c81
   scss-lint:
     enabled: true
 
