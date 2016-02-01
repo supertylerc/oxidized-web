@@ -2,7 +2,7 @@ require 'oxidized'
 require 'openssl'
 module Oxidized
   module Web
-    module Helpers
+    module Helpers #:nodoc:
       def valid_key?
         client = Models::Users.first(client_id: auth_header[:client_id])
         halt 403 if client.nil?
